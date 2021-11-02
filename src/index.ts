@@ -3,6 +3,15 @@ import { validate } from 'schema-utils'
 import * as schema from './schema.json'
 import { parseOptions, getOutputAndPublicPath, createPlaceholder } from './utils'
 import { cache } from './cache'
+import * as cloudinary from 'cloudinary';
+
+cloudinary.v2.config(
+  {
+    cloud_name: 'baobabdev',
+    api_key: '216832776511337',
+    api_secret: 'sAC_RiYp4BhApjajCgEPEIANpn4'
+  }
+)
 
 import type {
   Adapter,
@@ -170,6 +179,10 @@ export async function transform({
   const adapter: Adapter = adapterModule || require('./adapters/jimp')
   const img = adapter(resourcePath)
   const results = await transformations({ img, sizes, mime, outputPlaceholder, placeholderSize, adapterOptions })
+  const cloudinaryResults = await cloudinary.v2.uploader.upload(resourcePath)
+  const cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
+
+  console.log(cloudinaryUrl)
 
   let placeholder
   let files
@@ -193,6 +206,7 @@ export async function transform({
         ${placeholder ? 'placeholder: ' + placeholder + ',' : ''}
         width: ${firstImage.width},
         height: ${firstImage.height}
+        url_template: "${cloudinaryUrl}"
       }`
 }
 
