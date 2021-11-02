@@ -176,10 +176,17 @@ export async function transform({
   adapterOptions,
   esModule,
 }: TransformParams): Promise<string> {
+  const resourceName = resourcePath.split('/').slice(-1)[0]
   const adapter: Adapter = adapterModule || require('./adapters/jimp')
   const img = adapter(resourcePath)
   const results = await transformations({ img, sizes, mime, outputPlaceholder, placeholderSize, adapterOptions })
-  const cloudinaryResults = await cloudinary.v2.uploader.upload(resourcePath)
+  const cloudinaryResults = await cloudinary.v2.uploader.upload(
+    resourcePath, 
+    { public_id: resourceName, overwrite: true, invalidate: true }, 
+    (err) => {
+      if (err) console.log(err) 
+    }
+  )
   const cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
 
   console.log(cloudinaryUrl)
@@ -205,7 +212,7 @@ export async function transform({
         toString: function(){return ${firstImage.path}},
         ${placeholder ? 'placeholder: ' + placeholder + ',' : ''}
         width: ${firstImage.width},
-        height: ${firstImage.height}
+        height: ${firstImage.height},
         url_template: "${cloudinaryUrl}"
       }`
 }
