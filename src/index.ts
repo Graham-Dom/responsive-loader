@@ -4,6 +4,7 @@ import * as schema from './schema.json'
 import { parseOptions, getOutputAndPublicPath, createPlaceholder } from './utils'
 import { cache } from './cache'
 import * as cloudinary from 'cloudinary';
+import * as path from 'path';
 
 import type {
   Adapter,
@@ -172,13 +173,13 @@ export async function transform({
   esModule,
   cloudinaryCredentials,
 }: TransformParams): Promise<string> {
-  const resourceName = resourcePath.split('/').slice(-1)[0]
   const adapter: Adapter = adapterModule || require('./adapters/jimp')
   const img = adapter(resourcePath)
   const results = await transformations({ img, sizes, mime, outputPlaceholder, placeholderSize, adapterOptions })
   let cloudinaryUrl
   if (cloudinaryCredentials){
     cloudinary.v2.config(cloudinaryCredentials)
+    const resourceName = path.parse(resourcePath).name
     const cloudinaryResults = await cloudinary.v2.uploader.upload(
       resourcePath, 
       { public_id: resourceName, overwrite: true, invalidate: true }, 
