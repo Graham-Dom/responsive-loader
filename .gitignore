@@ -7,6 +7,5 @@ test/**/build/**/*.jpg
 test/**/build/**/*.webp
 examples
 .node-version
-lib
 .DS_Store
 .vscode
