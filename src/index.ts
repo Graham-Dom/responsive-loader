@@ -160,6 +160,8 @@ async function orchestrate(params: OrchestrateParams) {
   return result
 }
 
+class CloudinaryUploadError extends Error {}
+
 // Transform based on the parameters
 export async function transform({
   adapterModule,
@@ -176,15 +178,23 @@ export async function transform({
   const adapter: Adapter = adapterModule || require('./adapters/jimp')
   const img = adapter(resourcePath)
   const results = await transformations({ img, sizes, mime, outputPlaceholder, placeholderSize, adapterOptions })
+  
   let cloudinaryUrl
   if (cloudinaryCredentials){
+    
+    Object.entries(cloudinaryCredentials).forEach( entry => {
+      if (entry[1] == undefined) {
+        throw new CloudinaryUploadError(`Missing required cloudinary credential ${entry[0]}`)
+      }
+    })
     cloudinary.v2.config(cloudinaryCredentials)
+
     const resourceName = path.parse(resourcePath).name
     const cloudinaryResults = await cloudinary.v2.uploader.upload(
       resourcePath, 
       { public_id: resourceName, overwrite: true, invalidate: true }, 
       (err) => {
-        if (err) console.error(err) 
+        if (err) throw new CloudinaryUploadError(err.message)
       }
     )
     cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
