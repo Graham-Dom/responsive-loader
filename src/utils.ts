@@ -27,12 +27,14 @@ type ParsedOptions = {
   sizes: number[]
   imageOptions: ImageOptions
   cacheOptions: CacheOptions
+  cloudinaryCredentials?: { cloud_name: string, api_key: string, api_secret: string }
 }
 
 function parseOptions(loaderContext: LoaderContext, options: Options): ParsedOptions {
   const outputContext: string = options.context || loaderContext.rootContext
   const outputPlaceholder = Boolean(options.placeholder)
   const placeholderSize: number = parseInt(options.placeholderSize + "", 10)
+  const cloudinaryCredentials = options.cloudinaryCredentials
 
   // Adapter compression options
   const imageOptions: ImageOptions = {
@@ -103,6 +105,7 @@ function parseOptions(loaderContext: LoaderContext, options: Options): ParsedOpt
     placeholderSize,
     cacheOptions,
     imageOptions,
+    cloudinaryCredentials,
   }
 }
 

@@ -26,6 +26,7 @@ declare type Options = {
   cacheDirectory: string | boolean
   cacheIdentifier: string
   cacheCompression: boolean
+  cloudinaryCredentials?: { cloud_name: string, api_key: string, api_secret: string }
 }
 export type Format = "png" | "jpg" | "jpeg" | "webp" | "avif"
 export type FileExt = "jpg" | "png" | "webp" | "avif"
@@ -77,4 +78,11 @@ export interface TransformParams {
   sizes: number[]
   esModule: boolean
   adapterOptions: Options & ImageOptions
+  cloudinaryCredentials?: CloudinaryCredentials
+}
+
+export interface CloudinaryCredentials {
+  api_key: string,
+  api_secret: string,
+  cloud_name: string,
 }
