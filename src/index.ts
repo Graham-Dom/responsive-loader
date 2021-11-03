@@ -5,14 +5,6 @@ import { parseOptions, getOutputAndPublicPath, createPlaceholder } from './utils
 import { cache } from './cache'
 import * as cloudinary from 'cloudinary';
 
-cloudinary.v2.config(
-  {
-    cloud_name: 'baobabdev',
-    api_key: '216832776511337',
-    api_secret: 'sAC_RiYp4BhApjajCgEPEIANpn4'
-  }
-)
-
 import type {
   Adapter,
   Options,
@@ -36,6 +28,7 @@ const DEFAULTS = {
   cacheDirectory: false,
   cacheCompression: true,
   cacheIdentifier: '',
+  cloudinaryCredentials: undefined,
 }
 
 /**
@@ -74,6 +67,7 @@ export default function loader(this: LoaderContext, content: Buffer): void {
     ext,
     name,
     sizes,
+    cloudinaryCredentials,
     outputPlaceholder,
     placeholderSize,
     imageOptions,
@@ -141,6 +135,7 @@ export default function loader(this: LoaderContext, content: Buffer): void {
     mime,
     sizes,
     esModule: options.esModule,
+    cloudinaryCredentials: cloudinaryCredentials,
   }
   orchestrate({ cacheOptions, transformParams })
     .then((result) => loaderCallback(null, result))
@@ -175,21 +170,24 @@ export async function transform({
   placeholderSize,
   adapterOptions,
   esModule,
+  cloudinaryCredentials,
 }: TransformParams): Promise<string> {
   const resourceName = resourcePath.split('/').slice(-1)[0]
   const adapter: Adapter = adapterModule || require('./adapters/jimp')
   const img = adapter(resourcePath)
   const results = await transformations({ img, sizes, mime, outputPlaceholder, placeholderSize, adapterOptions })
-  const cloudinaryResults = await cloudinary.v2.uploader.upload(
-    resourcePath, 
-    { public_id: resourceName, overwrite: true, invalidate: true }, 
-    (err) => {
-      if (err) console.log(err) 
-    }
-  )
-  const cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
-
-  console.log(cloudinaryUrl)
+  let cloudinaryUrl
+  if (cloudinaryCredentials){
+    cloudinary.v2.config(cloudinaryCredentials)
+    const cloudinaryResults = await cloudinary.v2.uploader.upload(
+      resourcePath, 
+      { public_id: resourceName, overwrite: true, invalidate: true }, 
+      (err) => {
+        if (err) console.error(err) 
+      }
+    )
+    cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
+  }
 
   let placeholder
   let files
