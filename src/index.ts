@@ -204,16 +204,16 @@ export async function transform({
   const srcset = files.map((f) => f.src).join('+","+')
   const images = files.map((f) => `{path: ${f.path},width: ${f.width},height: ${f.height}}`).join(',')
   const firstImage = files[0]
+  const src = cloudinaryUrl ? `"${cloudinaryUrl}"` : firstImage.path
 
   return `${esModule ? 'export default' : 'module.exports ='} {
         srcSet: ${srcset},
         images: [${images}],
-        src: ${firstImage.path},
+        src: ${src},
         toString: function(){return ${firstImage.path}},
         ${placeholder ? 'placeholder: ' + placeholder + ',' : ''}
         width: ${firstImage.width},
-        height: ${firstImage.height},
-        url_template: "${cloudinaryUrl}"
+        height: ${firstImage.height}
       }`
 }
 
