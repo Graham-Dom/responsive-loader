@@ -197,7 +197,7 @@ export async function transform({
         if (err) throw new CloudinaryUploadError(err.message)
       }
     )
-    cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
+    cloudinaryUrl = cloudinaryResults.url.replace('http', 'https').replace('/upload', '/upload/WIDTH')
   }
 
   if (cloudinaryUrl) {
