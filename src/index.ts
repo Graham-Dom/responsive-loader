@@ -200,6 +200,12 @@ export async function transform({
     cloudinaryUrl = cloudinaryResults.url.replace('/upload', '/upload/WIDTH')
   }
 
+  if (cloudinaryUrl) {
+    console.log(`Created image resource at ${cloudinaryUrl}`)
+  } else {
+    console.log(`Didn't upload ${path.parse(resourcePath).name} to cloudinary`)
+  }
+
   let placeholder
   let files
 
